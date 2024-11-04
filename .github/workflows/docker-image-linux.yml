@@ -17,14 +17,11 @@ jobs:
     env:
       DOCKERFILE: |
         FROM mcr.microsoft.com/dotnet/runtime:8.0
-        SHELL ["/bin/bash", "-c"]
+        COPY MinecraftClient-${TARGETARCH} /opt/MinecraftClient
         RUN apt-get update && \ 
             apt-get install -y unzip && \
             rm -rf /var/lib/apt/lists/* && \
             mkdir /opt/data
-        RUN RELEASE_TAG=${MCC_VERSION:-$(curl -s -v https://github.com/MCCTeam/Minecraft-Console-Client/releases/latest 2>&1 | grep -i location: | tr -d '\r' | cut -d/ -f8)} && \
-            curl https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${TARGETARCH/amd64/x64} --output /opt/MinecraftClient && \
-            chmod +x /opt/MinecraftClient
         ENTRYPOINT ["/opt/MinecraftClient"]
 
     steps:
@@ -51,5 +48,12 @@ jobs:
     - name: Set up Buildkit
       uses: docker/setup-buildx-action@v3
 
+    - name: Download
+      run: |
+        RELEASE_TAG=${MCC_VERSION:-$(curl -s -v https://github.com/MCCTeam/Minecraft-Console-Client/releases/latest 2>&1 | grep -i location: | tr -d '\r' | cut -d/ -f8)} && \
+        for ARCH in x64 arm64 arm; do
+          curl https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${ARCH/x64/amd4} --output MinecraftClient-${ARCH/x64/amd4}
+        done
+        chmod +x MinecraftClient*
     - name: Build
-      run: echo "$DOCKERFILE" | docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client --build-arg ARCH=$TARGETARCH -f - --push .
+      run: echo "$DOCKERFILE" | docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client -f - --push .
