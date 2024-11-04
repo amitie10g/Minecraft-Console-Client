@@ -55,6 +55,7 @@ jobs:
         for ARCH in x64 arm64 arm; do
           curl https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${ARCH/x64/amd4} --output MinecraftClient-${ARCH/x64/amd4}
         done
+        ls
         chmod +x MinecraftClient*
     - name: Build
       run: echo "$DOCKERFILE" | docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client -f - --push .
