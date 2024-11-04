@@ -53,4 +53,4 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build
-      run: echo "$DOCKERFILE" | docker buildx build --platform=linux/amdd64,linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client --build-arg ARCH=$TARGETARCH -f - --push .
+      run: echo "$DOCKERFILE" | docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client --build-arg ARCH=$TARGETARCH -f - --push .
