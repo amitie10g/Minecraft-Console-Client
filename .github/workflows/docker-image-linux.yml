@@ -23,7 +23,7 @@ jobs:
             rm -rf /var/lib/apt/lists/* && \
             mkdir /opt/data
         RUN RELEASE_TAG=${MCC_VERSION:-$(curl -s -v https://github.com/MCCTeam/Minecraft-Console-Client/releases/latest 2>&1 | grep -i location: | tr -d '\r' | cut -d/ -f8)} && \
-            https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${TARGETARCH/amd64/x64} --output /opt/MinecraftClient && \
+            curl https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${TARGETARCH/amd64/x64} --output /opt/MinecraftClient && \
             chmod +x /opt/MinecraftClient
         ENTRYPOINT ["/opt/MinecraftClient"]
 
