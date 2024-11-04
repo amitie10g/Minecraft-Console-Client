@@ -14,6 +14,21 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      DOCKERFILE: |
+        FROM mcr.microsoft.com/dotnet/sdk:6.0
+
+        RUN apt-get update && \ 
+            apt-get install -y unzip && \
+            rm -rf /var/lib/apt/lists/* && \
+            mkdir /opt/data
+
+        RUN ARCH=${TARGETARCH} && \ [ "$ARCH" = "amd64" ] && ARCH="x64" || true && \
+            RELEASE_TAG=${MCC_VERSION:-$(curl -s -v https://github.com/MCCTeam/Minecraft-Console-Client/releases/latest 2>&1 | grep -i location: | tr -d '\r' | cut -d/ -f8)} && \
+            curl -L https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${ARCH} --output /opt/MinecraftClient && \
+            chmod +x /opt/MinecraftClient
+        ENTRYPOINT ["/opt/MinecraftClient"]
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -38,27 +53,5 @@ jobs:
     - name: Set up Buildkit
       uses: docker/setup-buildx-action@v3
 
-    - name: Set tags metadata
-      uses: docker/metadata-action@v5
-      id: meta
-      with:
-        images: |
-          ghcr.io/${{ github.repository_owner }}/minecraft-console-client
-#          ${{ secrets.DOCKERHUB_USERNAME }}/minecraft-console-client
-          
-        tags: |
-          latest
-
-    - name: Build And Push Docker Image
-      uses: docker/build-push-action@v5
-      id: build
-      with:
-        push: true
-        context: .
-        platforms: linux/amd64,linux/arm64
-        cache-from: |
-          type=gha
-        cache-to: |
-          type=gha,mode=min,ignore-error=true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+    - name: Build
+      run: echo "$DOCKERFILE" | docker buildx build -t ghcr.io/amitie10g/minecraft-console-client --build-arg ARCH=$TARGETARCH -f - --push .
