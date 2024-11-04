@@ -54,7 +54,7 @@ jobs:
       id: build
       with:
         push: true
-        context: image
+        context: .
         platforms: linux/amd64,linux/arm64
         cache-from: |
           type=gha
