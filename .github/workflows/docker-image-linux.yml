@@ -23,9 +23,8 @@ jobs:
             rm -rf /var/lib/apt/lists/* && \
             mkdir /opt/data
 
-        RUN ARCH=${TARGETARCH} && \ [ "$ARCH" = "amd64" ] && ARCH="x64" || true && \
-            RELEASE_TAG=${MCC_VERSION:-$(curl -s -v https://github.com/MCCTeam/Minecraft-Console-Client/releases/latest 2>&1 | grep -i location: | tr -d '\r' | cut -d/ -f8)} && \
-            curl -L https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${ARCH} --output /opt/MinecraftClient && \
+        RUN RELEASE_TAG=${MCC_VERSION:-$(curl -s -v https://github.com/MCCTeam/Minecraft-Console-Client/releases/latest 2>&1 | grep -i location: | tr -d '\r' | cut -d/ -f8)} && \
+            https://github.com/MCCTeam/Minecraft-Console-Client/releases/download/${RELEASE_TAG}/MinecraftClient-${RELEASE_TAG}-${MCC_PLATFORM:=linux}-${TARGETARCH/amd64/x64} --output /opt/MinecraftClient && \
             chmod +x /opt/MinecraftClient
         ENTRYPOINT ["/opt/MinecraftClient"]
 
@@ -54,4 +53,4 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build
-      run: echo "$DOCKERFILE" | docker buildx build -t ghcr.io/amitie10g/minecraft-console-client --build-arg ARCH=$TARGETARCH -f - --push .
+      run: echo "$DOCKERFILE" | docker buildx build --platform=linux/amdd64,linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client --build-arg ARCH=$TARGETARCH -f - --push .
