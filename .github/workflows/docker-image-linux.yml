@@ -17,6 +17,7 @@ jobs:
     env:
       DOCKERFILE: |
         FROM mcr.microsoft.com/dotnet/runtime:8.0
+        ARG TARGETARCH
         COPY MinecraftClient-${TARGETARCH} /opt/MinecraftClient
         RUN apt-get update && \ 
             apt-get install -y unzip && \
