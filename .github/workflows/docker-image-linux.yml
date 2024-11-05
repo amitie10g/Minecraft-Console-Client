@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker Image (Linux)
 
 on:
   workflow_dispatch:
@@ -58,4 +58,4 @@ jobs:
         chmod +x MinecraftClient*
 
     - name: Build
-      run: echo "$DOCKERFILE" | docker buildx build --platform=linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client -f - --push .
+      run: echo "$DOCKERFILE" | docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/amitie10g/minecraft-console-client -f - --push .
